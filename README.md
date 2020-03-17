@@ -3,35 +3,41 @@ The purpose of this small utility, one class module is to make connecting to a M
 
 ### Quick Start
 ```
-$ pip install py-ms-sql
+$ pip install py_ms_sql
 ```
 
 ### Usage
 ```python
-from py-ms-sql import ConnectSQL
+from py_ms_sql import py_ms_sql
 
 # Set up connection object (OPTIONAL: pass a logger object)
-sql_conn = ConnectSQL()
+sql_conn = py_ms_sql.ConnectSQL()
 
 # Use one of the following (in order of ease-of-use)
 # DSN of ODBC
-sql_conn.connect(dsn='mysqldsn', uid='user', pwd='password')
+state, msg = sql_conn.connect(dsn='mysqldsn', uid='user', pwd='password')
 
 # OR
 # ODBC Driver String
-sql_conn.connect(driver_string="{SQL Server};SERVER=server_name;DATABASE=my_db;UID=user;PWD=password")
+state, msg = sql_conn.connect(driver_string="{SQL Server};SERVER=server_name;" \
+                               "DATABASE=my_db;UID=user;PWD=password")
 
 # OR
 # ODBC Driver Details
-sql_conn.connect(driver='{SQL Server}',server='server_name',db='my_db',uid='user',pwd='password')
+state, msg = sql_conn.connect(driver='{SQL Server}',server='server_name',
+                 db='my_db',uid='user',pwd='password')
 
 # OR
 # Specify ODBC Driver Location
-sql_conn.connect(host="my-server.com",port=1433,db="my_db",uid='user',pwd=password,tds_version=7.3
+state, msg = sql_conn.connect(host="my-server.com",port=1433,db="my_db",
+                 uid='user',pwd=password,tds_version=7.3
                  driver='/usr/local/lib/libtdsodbc.so')
 
 # Run Query (return error status and Pandas DataFrame)
-status, data = sql_conn.query(sql_query)
+state, data = sql_conn.query(sql_query)
+
+# Close connection
+state, msg = sql_conn.close_conn()
 ```
 
 Run any one of the above commands and if the code can find the ODBC driver, it will connect.
@@ -50,4 +56,4 @@ In the event of errors try the following:
 - [ ] allow for non-Pandas DataFrame returns
 
 ### Fine Print
-Why operating systems cause errors with connecting to MS SQL Server is due to the drivers and how a machine finds the drivers. For example, Windows can connect using an ODBC manager (so can MAC OSX, but not the easiest). Therefore, to make sure your deployment doesn't run with errors, use `os.name` to determine which OS is running and call the correct driver/use the appropriate connection details.
+The main reason operating systems cause errors with connecting to MS SQL Server is due to the drivers and how a machine finds the drivers. For example, Windows can connect using an ODBC manager (so can MAC OSX, but not the easiest). Therefore, to make sure your deployment doesn't run with errors, use `os.name` to determine which OS is running and call the correct driver/use the appropriate connection details.

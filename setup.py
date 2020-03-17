@@ -8,8 +8,8 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="py-ms-sql", # Replace with your own username
-    version="0.0.1",
+    name="py_ms_sql", # Replace with your own username
+    version="0.1.1",
     author="Timothy Reeder",
     author_email="timothy.reeder23@gmail.com",
     description="A small utility package that makes connecting to Microsoft SQL easier",
