@@ -1,8 +1,0 @@
-README.md
-setup.py
-py-ms-sql/__init__.py
-py-ms-sql/py-ms-sql.py
-py_ms_sql.egg-info/PKG-INFO
-py_ms_sql.egg-info/SOURCES.txt
-py_ms_sql.egg-info/dependency_links.txt
-py_ms_sql.egg-info/top_level.txt
