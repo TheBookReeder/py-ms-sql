@@ -44,6 +44,7 @@ In the event of errors try the following:
 1. If you're connecting from something other than a Microsoft Machine, you may need to use the last option since some MS Sql Server use instance name to have a discoverable port number, and non-Microsoft machines struggle to discover port number (sometimes)
 1. If using FreeTDS on a non-Microsoft machine, make sure it is installed properly 
 
+### TODO
 - [ ] allow for *writing* to MS SQL Server (if incomplete, only allows for read queries)
 - [ ] improve ease of portability so that no effort (what-so-ever) is needed to accomodate operating system
 - [ ] allow for non-Pandas DataFrame returns
