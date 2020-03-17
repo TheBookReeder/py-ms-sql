@@ -1,3 +1,4 @@
 build/
 dist/
 py_ms_sql.egg*
+py_ms_sql/
