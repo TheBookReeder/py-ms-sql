@@ -13,7 +13,7 @@ from py-ms-sql import ConnectSQL
 # Set up connection object (OPTIONAL: pass a logger object)
 sql_conn = ConnectSQL()
 
-# Use one of the following, in order of ease-of-use
+# Use one of the following (in order of ease-of-use)
 # DSN of ODBC
 sql_conn.connect(dsn='mysqldsn', uid='user', pwd='password')
 
@@ -36,7 +36,7 @@ status, data = sql_conn.query(sql_query)
 
 Run any one of the above commands and if the code can find the ODBC driver, it will connect.
 
-**NOTE:** The query() method returns a Pandas DataFrame 
+**NOTE:** The `.query()` method returns a Pandas DataFrame 
 
 ### Self Debug
 In the event of errors try the following:
