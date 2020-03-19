@@ -3,7 +3,7 @@ py-ms-sql.py: connects and pulls from an MS SQL server, will accommodate for
 different operating systems.
 """
 __author__ = "Timothy Reeder"
-__version__ = "0.0.1"
+__version__ = "0.1.1"
 
 import logging
 
@@ -60,6 +60,7 @@ class ConnectSQL:
             self.logger = logging.getLogger()
 
         self.__conn = None
+        self.__cur = None
         self.__data = pd.DataFrame()
         self.logger.info("SQL Handler Initialised")
 
@@ -157,19 +158,20 @@ class ConnectSQL:
         # Error check
         if res == 0:
             self.logger.info("Connecting to MS SQL - Connected")
+            self.__cur = self.__conn.cursor()
             return 0, 'pass'
 
         else:
             self.logger.error("Connecting to MS SQL  - Failed")
             return res, err
 
-    def query(self, sql_statement):
+    def select(self, sql_statement):
         """
         Will run the query using the member's connection (__conn) and return
         a Pandas DataFrame
 
-        :param sql_statement: (str) The query to run
-        :return: Pandas DataFrame(), or -1 with the error message for an error
+        :param sql_statement: (str) The SELECT query to run
+        :return: 0 with Pandas DataFrame(), or -1 with an error message
         """
         self.logger.info("Running query")
         try:
@@ -186,13 +188,83 @@ class ConnectSQL:
             return -1, error
 
         except (ValueError, TypeError) as error:
-            self.logger.exception("Query failed. PullNetezza.query() requires "
+            self.logger.exception("Query failed. ConnectSQL.query() requires "
                                   "a query passed as a string. ",
                                   error)
             return -1, error
 
         except Exception as error:
             self.logger.exception("Query failed. General exception: ", error)
+            return -1, error
+
+    def insert_df(self, data, table):
+        """
+        This method expects a Pandas DataFrame and a table name. The DataFrame
+        will thus be written into the table.
+
+        :param data: a Pandas DataFrame
+        :param table: a table name - must exist (string)
+        :return:
+        """
+        self.logger.info("Writing df to table")
+        try:
+            # Write to table
+            data.to_sql(table, self.__conn)
+            self.logger.info("Writing df to table - Completed")
+            return 0, self.__data
+
+        # Exception Handling
+        except ConnectionError as error:
+            self.logger.exception("Writing failed. Connection has closed from "
+                                  "being idle. ", error)
+            return -1, error
+
+        except (ValueError, TypeError) as error:
+            self.logger.exception("Writing failed. Make sure a table name and "
+                                  "Pandas DataFrame have been passed.", error)
+            return -1, error
+
+        except Exception as error:
+            self.logger.exception("Writing failed. General exception: ", error)
+            return -1, error
+
+    def insert_record(self, table, columns, values):
+        """
+        The method that is used for writing individual records to the specified
+        SQL server table.
+
+        Note: the value string must contain inverted commas when entries are
+        to be varchars in the table.
+
+        :param table: the table name (string)
+        :param columns: a string of columns (comma sep)
+        :param values: a string of values to be written to the table (comma sep)
+        :return: None
+        """
+        self.logger.info("Writing record to table")
+
+        # create a query to write values to a table
+        query = "INSERT INTO {} ({}) VALUES ({})".format(table, columns, values)
+
+        try:
+            # Write to table
+            self.__cur.execute(query)
+            self.logger.info("Writing record to table - Completed")
+            return 0, self.__data
+
+        # Exception Handling
+        except ConnectionError as error:
+            self.logger.exception("Writing failed. Connection has closed from "
+                                  "being idle. ", error)
+            return -1, error
+
+        except (ValueError, TypeError) as error:
+            self.logger.exception("Writing failed. Make sure a table name and "
+                                  "Pandas DataFrame have been passed.", error)
+            return -1, error
+
+        except Exception as error:
+            self.logger.exception("Writing failed. General exception: ", error)
             return -1, error
 
     def __pyodbc_conn(self, *args, **kwargs):

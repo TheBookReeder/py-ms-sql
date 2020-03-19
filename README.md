@@ -33,8 +33,12 @@ state, msg = sql_conn.connect(host="my-server.com",port=1433,db="my_db",
                  uid='user',pwd=password,tds_version=7.3
                  driver='/usr/local/lib/libtdsodbc.so')
 
-# Run Query (return error status and Pandas DataFrame)
-state, data = sql_conn.query(sql_query)
+# Run a SELECT statement query (return error status and Pandas DataFrame)
+state, data = sql_conn.select(sql_query)
+
+# OR
+# Run an INSERT statement query (expects a table name and pandas DataFrame)
+state, msg = sql_conn.insert_df(table, df)
 
 # Close connection
 state, msg = sql_conn.close_conn()

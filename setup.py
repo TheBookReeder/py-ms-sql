@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="py_ms_sql", # Replace with your own username
-    version="0.1.1",
+    version="0.1.2",
     author="Timothy Reeder",
     author_email="timothy.reeder23@gmail.com",
     description="A small utility package that makes connecting to Microsoft SQL easier",
