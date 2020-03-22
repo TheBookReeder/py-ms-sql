@@ -3,7 +3,7 @@ py-ms-sql.py: connects and pulls from an MS SQL server, will accommodate for
 different operating systems.
 """
 __author__ = "Timothy Reeder"
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 import logging
 
@@ -62,6 +62,7 @@ class ConnectSQL:
 
         self.__conn = None
         self.__cur = None
+        self.engine = None
         self.__data = pd.DataFrame()
         self.logger.info("SQL Handler Initialised")
 
@@ -95,8 +96,8 @@ class ConnectSQL:
           connect(driver='{SQL Server}', server='My_Server'
           db='My_DB', uid='username', pwd='password')
         - MAC OSX:
-          connect(host="My_Server.com",
-          db="My_DB", uid=r'my_user', tds_version='7.4', password=r'my_pass',
+          connect(host="My_Server.com", db="My_DB", uid=r'my_user',
+          tds_version='7.4', pwd=r'my_pass',
           port=1234, driver='/usr/local/lib/libtdsodbc.so')
 
         :param args: expected None
@@ -107,7 +108,7 @@ class ConnectSQL:
         self.logger.info("Connecting to MS SQL")
 
         # Initial result is set to 0 and error set to set-up string
-        res, err = 0, "no value"
+        res, err = -1, "no value"
 
         if len(args) != 0:
             self.logger.warning("Only use keyword arguments. Any basic "
@@ -118,7 +119,7 @@ class ConnectSQL:
         dsn_checks = ('dsn', 'uid', 'pwd')
         odbc_driver_a_checks = ('driver_string',)
         odbc_driver_b_checks = ('driver', 'server', 'db', 'uid', 'pwd')
-        mac_osx_checks = ('server', 'port', 'database', 'user', 'password',
+        mac_osx_checks = ('host', 'port', 'db', 'uid', 'pwd',
                           'tds_version', 'driver')
 
         # Check for the use of DSN
@@ -137,7 +138,7 @@ class ConnectSQL:
             # Set up connection
             res, err = self.__pyodbc_conn(kwargs['driver_string'])
 
-        # Check for use of driver string
+        # Check for use of driver details
         elif all(check in kwargs for check in odbc_driver_b_checks):
             self.logger.info("Using ODBC driver with a conn details")
             # Convert keyword arguments to string
@@ -150,16 +151,24 @@ class ConnectSQL:
             # Set up connection
             res, err = self.__pyodbc_conn(conn_string)
 
-        # Check for use of driver string
+        # Check for use of explicit details
         elif all(check in kwargs for check in mac_osx_checks):
             self.logger.info("Using Mac OSX conn method")
             # Set up connection
             res, err = self.__pyodbc_conn(**kwargs)
+            # Set up engine
+            engine_str = r"mssql+pyodbc://{}:{}@{}:{}/{}?driver={}"
+            self.engine = create_engine(engine_str.format(kwargs['uid'],
+                                                          kwargs['pwd'],
+                                                          kwargs['host'],
+                                                          kwargs['port'],
+                                                          kwargs['db'],
+                                                          kwargs['driver']))
 
         # Error check
         if res == 0:
             self.logger.info("Connecting to MS SQL - Connected")
-            self.__cur = self.__conn.cursor()
+            # self.__cur = self.__conn.cursor()
             return 0, 'pass'
 
         else:
@@ -203,6 +212,9 @@ class ConnectSQL:
         This method expects a Pandas DataFrame and a table name. The DataFrame
         will thus be written into the table.
 
+        NOTE: To use this function, the connection needed to be set up with
+        all explicit connection details
+
         :param data: a Pandas DataFrame
         :param table: a table name - must exist (string)
         :param kwargs: additional keyword arguments to pass to
@@ -212,7 +224,7 @@ class ConnectSQL:
         self.logger.info("Writing df to table")
         try:
             # Write to table
-            data.to_sql(table, self.__conn, **kwargs)
+            data.to_sql(table, self.engine, **kwargs)
             self.logger.info("Writing df to table - Completed")
             return 0, 'pass'
 

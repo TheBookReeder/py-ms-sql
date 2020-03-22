@@ -38,7 +38,7 @@ state, data = sql_conn.select(sql_query)
 
 # OR
 # Run an INSERT statement query (expects a table name and pandas DataFrame)
-state, msg = sql_conn.insert_df(table, df)
+state, msg = sql_conn.insert_df(df, table)
 
 # Close connection
 state, msg = sql_conn.close_conn()
@@ -55,7 +55,7 @@ In the event of errors try the following:
 1. If using FreeTDS on a non-Microsoft machine, make sure it is installed properly 
 
 ### TODO
-- [ ] allow for *writing* to MS SQL Server (if incomplete, only allows for read queries)
+- [x] allow for *writing* to MS SQL Server (if incomplete, only allows for read queries)
 - [ ] improve ease of portability so that no effort (what-so-ever) is needed to accomodate operating system
 - [ ] allow for non-Pandas DataFrame returns
 
