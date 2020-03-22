@@ -9,6 +9,7 @@ import logging
 
 import pyodbc
 import pandas as pd
+from sqlalchemy import create_engine
 
 
 class ConnectSQL:
@@ -197,21 +198,23 @@ class ConnectSQL:
             self.logger.exception("Query failed. General exception: ", error)
             return -1, error
 
-    def insert_df(self, data, table):
+    def insert_df(self, data, table, **kwargs):
         """
         This method expects a Pandas DataFrame and a table name. The DataFrame
         will thus be written into the table.
 
         :param data: a Pandas DataFrame
         :param table: a table name - must exist (string)
+        :param kwargs: additional keyword arguments to pass to
+        Pandas.DataFrame.to_sql(**kwargs)
         :return:
         """
         self.logger.info("Writing df to table")
         try:
             # Write to table
-            data.to_sql(table, self.__conn)
+            data.to_sql(table, self.__conn, **kwargs)
             self.logger.info("Writing df to table - Completed")
-            return 0, self.__data
+            return 0, 'pass'
 
         # Exception Handling
         except ConnectionError as error:
@@ -250,7 +253,7 @@ class ConnectSQL:
             # Write to table
             self.__cur.execute(query)
             self.logger.info("Writing record to table - Completed")
-            return 0, self.__data
+            return 0, 'pass'
 
         # Exception Handling
         except ConnectionError as error:
