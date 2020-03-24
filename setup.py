@@ -8,7 +8,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="py_ms_sql", # Replace with your own username
+    name="py_ms_sql",
     version="0.2.1",
     author="Timothy Reeder",
     author_email="timothy.reeder23@gmail.com",

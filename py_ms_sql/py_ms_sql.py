@@ -75,7 +75,11 @@ class ConnectSQL:
         try:
             if self.__conn:
                 self.__conn.close()
+                self.__conn = None
                 return 0, 'pass'
+
+            else:
+                return 0, 'connection already closed'
 
         except (TypeError, ValueError) as error:
             self.logger.exception("Closing MS SQL connection error")
