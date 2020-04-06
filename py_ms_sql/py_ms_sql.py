@@ -135,12 +135,31 @@ class ConnectSQL:
                                                         kwargs['pwd'])
             # Set up connection
             res, err = self.__pyodbc_conn(conn_string)
+            # Set up engine
+            engine_str = r"mssql+pyodbc://{}:{}@{}".format(kwargs['uid'],
+                                                           kwargs['pwd'],
+                                                           kwargs['dsn'])
+            self.engine = create_engine(engine_str)
+            self.logger.info("SQL engine - Connected")
+            self.logger.warning("To write to table, specify 'db' in .insert_df")
 
         # Check for use of driver string
         elif all(check in kwargs for check in odbc_driver_a_checks):
             self.logger.info("Using ODBC driver with a conn string")
+            conn_string = kwargs['driver_string']
             # Set up connection
-            res, err = self.__pyodbc_conn(kwargs['driver_string'])
+            res, err = self.__pyodbc_conn(conn_string)
+            # Pull parameters from string
+            param_list = [i.split('=') for i in conn_string.split(';')]
+            param_dict = {i[0]: i[1] for i in param_list}
+            # Set up engine
+            engine_str = "mssql+pyodbc://{}:{}@{}/{}?driver={}"
+            self.engine = create_engine(engine_str.format(kwargs['UID'],
+                                                          kwargs['PWD'],
+                                                          kwargs['SERVER'],
+                                                          kwargs['DATABASE'],
+                                                          kwargs['DRIVER']))
+            self.logger.info("SQL engine - Connected")
 
         # Check for use of driver details
         elif all(check in kwargs for check in odbc_driver_b_checks):
@@ -154,6 +173,14 @@ class ConnectSQL:
                                                  kwargs['pwd'])
             # Set up connection
             res, err = self.__pyodbc_conn(conn_string)
+            # Set up engine
+            engine_str = "mssql+pyodbc://{}:{}@{}/{}?driver={}"
+            engine = create_engine(engine_str.format(kwargs['uid'],
+                                                     kwargs['pwd'],
+                                                     kwargs['server'],
+                                                     kwargs['db'],
+                                                     kwargs['driver']))
+            self.logger.info("SQL engine - Connected")
 
         # Check for use of explicit details
         elif all(check in kwargs for check in mac_osx_checks):
@@ -168,6 +195,7 @@ class ConnectSQL:
                                                           kwargs['port'],
                                                           kwargs['db'],
                                                           kwargs['driver']))
+            self.logger.info("SQL engine - Connected")
 
         # Error check
         if res == 0:
